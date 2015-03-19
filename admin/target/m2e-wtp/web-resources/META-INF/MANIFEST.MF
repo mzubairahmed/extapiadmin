@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Implementation-Version: 1.0.1
+Build-Jdk: 1.7.0_60
+Built-By: zahmed
+Specification-Title: admin
+Created-By: Maven Integration for Eclipse
+Specification-Version: 1.0.1
+
