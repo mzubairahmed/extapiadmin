@@ -40,13 +40,23 @@ public class CopyController {
     ProductClient productClient;
 
     Logger _LOGGER = Logger.getLogger(CopyController.class.getName());
+    
+    
+    @RequestMapping(value = "validate", method = RequestMethod.GET, produces = { "application/json; charset=UTF-8" })
+    @ResponseBody
+    public Boolean isEnvironmentValid() throws Exception {
+        return copyService.validateEnvironments();
+    }
 
     @RequestMapping(value = "count", method = RequestMethod.GET, produces = { "application/json; charset=UTF-8" })
     @ResponseBody
-    public int getProductsCount(@RequestParam("companyId") Long companyID, @RequestParam("authToken") String authToken) {
+    public long getProductsCount(@RequestParam("companyId") Long companyID, @RequestParam("authToken") String authToken) {
 
-        List<ProductSearch> products = migrationService.getProductsListByCompanyID(companyID, authToken);
-        return products.size();
+//        List<ProductSearch> products = migrationService.getProductsListByCompanyID(companyID, authToken);
+//        return products.size();
+        
+        return migrationService.getProductCount(companyID, authToken);
+        
     }
     
     @RequestMapping(value = "copy")

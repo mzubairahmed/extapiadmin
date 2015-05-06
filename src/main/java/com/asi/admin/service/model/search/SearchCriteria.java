@@ -3,7 +3,8 @@ package com.asi.admin.service.model.search;
 public class SearchCriteria {
     
     private Long companyID;
-    private Integer pageSize;
+    private Long pageSize;
+    private Boolean isDefaultSearch;
 
     /**
      * @return the companyID
@@ -22,15 +23,23 @@ public class SearchCriteria {
     /**
      * @return the pageSize
      */
-    public Integer getPageSize() {
+    public Long getPageSize() {
         return pageSize;
     }
 
     /**
      * @param pageSize the pageSize to set
      */
-    public void setPageSize(Integer pageSize) {
+    public void setPageSize(Long pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Boolean getIsDefaultSearch() {
+        return isDefaultSearch;
+    }
+
+    public void setIsDefaultSearch(Boolean isDefaultSearch) {
+        this.isDefaultSearch = isDefaultSearch;
     }
 
 }

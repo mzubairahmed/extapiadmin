@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.asi.admin.service.model.count.GuidedSearchResult;
 import com.asi.admin.service.model.search.ProductSearch;
 import com.asi.admin.service.model.search.SearchCriteria;
 
@@ -20,9 +21,9 @@ public class MigrateProductServiceImpl {
     @Autowired
     private RestTemplate restTemplate;
     private String productSearchURL;
-    private Integer pageSize;
+    private String productCountURL;
     
-    public List<ProductSearch> getProductsListByCompanyID(Long companyID, String authToken) {
+    public List<ProductSearch> getProductsListByCompanyID(Long companyID, Long count, String authToken) {
         
         HttpHeaders header = new HttpHeaders();
         header.add("AuthToken", authToken);
@@ -30,7 +31,7 @@ public class MigrateProductServiceImpl {
         
         SearchCriteria criteria = new SearchCriteria();
         criteria.setCompanyID(companyID);
-        criteria.setPageSize(getPageSize());
+        criteria.setPageSize(count);
 
         HttpEntity<SearchCriteria> requestEntity = new HttpEntity<SearchCriteria>(criteria, header);
 
@@ -38,6 +39,23 @@ public class MigrateProductServiceImpl {
         
         return Arrays.asList(searchResults.getBody());
         
+    }
+    
+    public Long getProductCount(Long companyId, String authToken) {
+        HttpHeaders header = new HttpHeaders();
+        header.add("AuthToken", authToken);
+        header.setContentType(MediaType.APPLICATION_JSON);
+        
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setCompanyID(companyId);
+        criteria.setIsDefaultSearch(true);
+        
+        HttpEntity<SearchCriteria> requestEntity = new HttpEntity<SearchCriteria>(criteria, header);
+        
+        ResponseEntity<GuidedSearchResult> countResult = restTemplate.exchange(getProductCountURL(), HttpMethod.POST, requestEntity, GuidedSearchResult.class);
+        
+        return countResult.getBody().getTotal();
+
     }
 
     /**
@@ -69,17 +87,17 @@ public class MigrateProductServiceImpl {
     }
 
     /**
-     * @return the pageSize
+     * @return the productCountURL
      */
-    public Integer getPageSize() {
-        return pageSize;
+    public String getProductCountURL() {
+        return productCountURL;
     }
 
     /**
-     * @param pageSize the pageSize to set
+     * @param productCountURL the productCountURL to set
      */
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
+    public void setProductCountURL(String productCountURL) {
+        this.productCountURL = productCountURL;
     }
 
 
