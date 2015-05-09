@@ -1,5 +1,9 @@
 package com.asi.admin.service.impl;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Pattern;
+
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
@@ -25,6 +29,9 @@ public class CopyServiceImpl {
     
     private static final Logger _LOGGER = Logger.getLogger(CopyServiceImpl.class.getName());
     
+    private static final String PROD_HOST = "productservice.asicentral.com";
+    private static final String SAND_HOST = "sandbox-productservice.asicentral.com";
+    
     @Autowired
     MigrateProductServiceImpl   migrationService;
     RestTemplate                restTemplate;
@@ -38,6 +45,28 @@ public class CopyServiceImpl {
     // mail sender properties
     private String from;
     private String replyTo;
+    
+    
+    public boolean validateEnvironments() throws URISyntaxException {
+        
+        boolean result = true;
+        
+        URI sourceURI = new URI(sourceEndpoint.replaceAll("\\{xid\\}", ""));
+        URI destinitionURI = new URI(destinationEndpoint.replaceAll("\\{xid\\}", ""));
+        
+        if(destinitionURI.getHost().equalsIgnoreCase((PROD_HOST))) {
+            _LOGGER.debug("Abort!!! Desitinition is setup as Production.");
+            result = false;
+        } else if(sourceURI.equals(destinitionURI)) {
+            _LOGGER.debug("Cannot Proceed as sorce and destinition both are same");
+            result = false;
+        } else if(!destinitionURI.getHost().equalsIgnoreCase(SAND_HOST)) {
+            result = false;
+        }
+        
+        return result;
+    }
+
     
     public void sendStartProcessEMail(String to, String asiNumber) {
         
@@ -141,6 +170,22 @@ public class CopyServiceImpl {
 
         return header;
     }
+    
+    public static void main(String...args) {
+        
+        CopyServiceImpl copyServiceImpl = new CopyServiceImpl();
+        copyServiceImpl.setSourceEndpoint("https://productservice.asicentral.com/v1/product/{xid}");
+        copyServiceImpl.setDestinationEndpoint("https://sandbox-productservice.asicentral.com/v1/product/");
+        
+        String replace = copyServiceImpl.getSourceEndpoint().replaceAll("\\{xid\\}", "");
+        
+        try {
+            copyServiceImpl.validateEnvironments();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        
+    }
 
     /**
      * @return the migrationService
@@ -197,7 +242,6 @@ public class CopyServiceImpl {
     public void setDestinationEndpoint(String destinationEndpoint) {
         this.destinationEndpoint = destinationEndpoint;
     }
-
 
     /**
      * @return the from

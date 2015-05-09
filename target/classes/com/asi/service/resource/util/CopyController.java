@@ -2,7 +2,6 @@ package com.asi.service.resource.util;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.asi.admin.service.impl.CopyServiceImpl;
 import com.asi.admin.service.impl.MigrateProductServiceImpl;
-import com.asi.admin.service.model.search.ProductSearch;
 import com.asi.service.product.client.ProductClient;
 
 @Controller
@@ -40,13 +38,23 @@ public class CopyController {
     ProductClient productClient;
 
     Logger _LOGGER = Logger.getLogger(CopyController.class.getName());
+    
+    
+    @RequestMapping(value = "validate", method = RequestMethod.GET, produces = { "application/json; charset=UTF-8" })
+    @ResponseBody
+    public Boolean isEnvironmentValid() throws Exception {
+        return copyService.validateEnvironments();
+    }
 
     @RequestMapping(value = "count", method = RequestMethod.GET, produces = { "application/json; charset=UTF-8" })
     @ResponseBody
-    public int getProductsCount(@RequestParam("companyId") Long companyID, @RequestParam("authToken") String authToken) {
+    public long getProductsCount(@RequestParam("companyId") Long companyID, @RequestParam("authToken") String authToken) {
 
-        List<ProductSearch> products = migrationService.getProductsListByCompanyID(companyID, authToken);
-        return products.size();
+//        List<ProductSearch> products = migrationService.getProductsListByCompanyID(companyID, authToken);
+//        return products.size();
+        
+        return migrationService.getProductCount(companyID, authToken);
+        
     }
     
     @RequestMapping(value = "copy")

@@ -46,6 +46,24 @@
 	    opacity:.25;
 	    filter: alpha(opacity=25); 
 	}
+	
+	.alert-box {
+	    color:#555;
+	    border-radius:10px;
+	    font-family:Tahoma,Geneva,Arial,sans-serif;font-size:11px;
+	    padding:10px 10px 10px 36px;
+	    margin:10px;
+	}
+
+	.alert-box span {
+	    font-weight:bold;
+	    text-transform:uppercase;
+	}
+	
+	.error {
+	    background:#ffecec;
+	    border:1px solid #f5aca6;
+	}
    
    
 </style>
@@ -68,6 +86,27 @@
 		jQuery.ajax({
 			'data' : data,
 			'type' : 'GET',
+			'url' : 'utility/validate',
+			'success' : function(response) {
+				// alert($.trim(response).toUpperCase());
+				if($.trim(response).toUpperCase() === "TRUE") {
+					getCount();
+				} else {
+					$("#errorMessage").show();
+					$("#progressPanel").hide();
+					$("#progressImage").hide();
+
+				}
+			}
+		});
+
+	});
+	
+	function getCount() {
+		// use jQuery.ajax
+		jQuery.ajax({
+			'data' : data,
+			'type' : 'GET',
 			'url' : 'utility/count',
 			'success' : function(response) {
 				$("#productCount").html(response);
@@ -77,8 +116,7 @@
 				$("#progressImage").hide();
 			}
 		});
-
-	});
+	}
 	
 	function copyProducts() {
 		var confirmation = window.confirm("Click 'Yes' to begin the Copy process, otherwise press 'Cancel' if you accidently hit the copy button.");
@@ -115,6 +153,8 @@
 	<div class="container">
 
 		<h1>Welcome to the Copy Utility!</h1>
+		
+		<div id="errorMessage" class="alert-box error" style="display: none;"><span>STOP!</span> Cannot Proceed - The destination has set as production</div>
 
 		<h4>
 			There are <span id="productCount"></span> number of products in

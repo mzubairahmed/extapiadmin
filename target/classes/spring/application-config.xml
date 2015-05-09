@@ -26,7 +26,7 @@
 		<bean id="migrateService" class="com.asi.admin.service.impl.MigrateProductServiceImpl">
 			<property name="restTemplate" ref="restTemplate" />
 			<property name="productSearchURL" value="${ws.api.source.productsearch}" />
-			<property name="pageSize" value="${ws.api.source.productsearch.pagesize}" />
+			<property name="productCountURL" value="${ws.api.source.product.count}" />
 		</bean>
 		
 		<bean id="copyService" class="com.asi.admin.service.impl.CopyServiceImpl">

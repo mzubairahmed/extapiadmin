@@ -21,6 +21,8 @@ public class LoginController {
     
     private static final Logger _LOGGER = Logger.getLogger(LoginController.class.getName());
     
+    public static final String CREDENTIAL_SESSION = "session.credentials";
+    
     @Autowired
     private LoginCopyServiceImpl loginService;
     
@@ -53,6 +55,10 @@ public class LoginController {
             mv.addObject("STAGE_USER", sourceUser);
             mv.addObject("SANDBOX_USER", destinationUser);
             mv.addObject("Email", email);
+            
+            // in case the login is successfull - set the credentials in session
+            // in case the authtoken gets expired, the user should re-login and get a new authtoken instead of breaking the whole flow...
+            request.getSession().setAttribute(CREDENTIAL_SESSION, credentials);
 
             mv.setViewName("/welcome");
         } catch (RestClientException e) {

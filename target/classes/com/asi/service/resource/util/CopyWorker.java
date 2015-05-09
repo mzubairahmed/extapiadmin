@@ -41,8 +41,11 @@ public class CopyWorker implements Runnable {
         
         StringBuilder htmlMessage = new StringBuilder();
         
+        _LOGGER.info("Getting products count");
+        Long productsCount = migrationService.getProductCount(companyId, sourceAuthToken);
+        
         _LOGGER.debug("Getting list of products that needs to be imported");
-        List<ProductSearch> products = getMigrationService().getProductsListByCompanyID(companyId, sourceAuthToken);
+        List<ProductSearch> products = getMigrationService().getProductsListByCompanyID(companyId, productsCount, sourceAuthToken);
         
         _LOGGER.debug("Starting copying process...");
         _LOGGER.debug(products.size() + " will be imported to the destination");
