@@ -11,12 +11,16 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
 import com.asi.admin.service.impl.CopyServiceImpl;
+import com.asi.admin.service.impl.LoginCopyServiceImpl;
 import com.asi.admin.service.impl.MigrateProductServiceImpl;
 import com.asi.admin.service.model.Product;
+import com.asi.admin.service.model.login.Credential;
 import com.asi.admin.service.model.search.ProductSearch;
+import com.asi.service.login.client.vo.AccessData;
 import com.asi.service.product.client.ProductClient;
 import com.asi.service.resource.response.ExternalAPIResponse;
 
@@ -25,6 +29,7 @@ public class CopyWorker implements Runnable {
     private static final Logger _LOGGER = Logger.getLogger(CopyWorker.class.getName());
     
     private Long companyId;
+    private Credential credential;
     private String sourceAuthToken;
     private String destinationAuthToken;
     private String asiNumber;
@@ -34,6 +39,8 @@ public class CopyWorker implements Runnable {
     private CopyServiceImpl copyService;
 
     private MigrateProductServiceImpl   migrationService;
+    
+    private LoginCopyServiceImpl loginService;
     
     private ProductClient productClient;
 
@@ -50,22 +57,42 @@ public class CopyWorker implements Runnable {
         _LOGGER.debug("Starting copying process...");
         _LOGGER.debug(products.size() + " will be imported to the destination");
         
-        if(getInProgress().containsKey(asiNumber)) {
-            copyService.sendInProgressEmail(email, asiNumber);
-            return;
-        } else {
-            getInProgress().put(asiNumber, companyId.toString());
-            copyService.sendStartProcessEMail(email, asiNumber);
-        }
-        
-        Product sourceProduct;
-        ResponseEntity<ExternalAPIResponse> sourceResponse;
+//        if(getInProgress().containsKey(asiNumber)) {
+//            copyService.sendInProgressEmail(email, asiNumber);
+//            return;
+//        } else {
+//            getInProgress().put(asiNumber, companyId.toString());
+//            copyService.sendStartProcessEMail(email, asiNumber);
+//        }
+        // This source auth token is changed to other auth token to test the expiration auth token case.
+        // LINE TO BE DELETED BEFORE COMMITTING CODE - START ----
+        sourceAuthToken = "basdf023n234bk2j3n4jk23k4n23b4kj23b4jkjnkjnjkasdfasd";
+        destinationAuthToken = "asdf23r23sfasdfawfasdfasfqwr232asdfsaasdfasdfasdf244ddaze";
+        // LINE TO BE DELETED BEFORE COMMITTING CODE - START ----
+        Product sourceProduct = null;
+        ResponseEntity<ExternalAPIResponse> sourceResponse = null;
         for (ProductSearch product : products) {
 
             try {
-                sourceProduct = copyService.getSourceProduct(sourceAuthToken, product.getXID());
+            	try {
+            		sourceProduct = copyService.getSourceProduct(sourceAuthToken, product.getXID());
+            	} catch (HttpClientErrorException httpe) {
+	    			if(httpe.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+	    				AccessData sourceUser = loginService.loginUserSourceLocation(credential);
+	    				sourceAuthToken = sourceUser.getAccessToken();
+	    				sourceProduct = copyService.getSourceProduct(sourceAuthToken, product.getXID());
+	    			}
+            	}
                 if (sourceProduct != null && !StringUtils.isEmpty(sourceProduct.getName())) {
-                    sourceResponse = copyService.postProductToDestination(destinationAuthToken, sourceProduct);
+                	try {
+                		sourceResponse = copyService.postProductToDestination(destinationAuthToken, sourceProduct);
+	                } catch (HttpClientErrorException httpe) {
+            			if(httpe.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            				AccessData destinationUser = loginService.loginUserDestinationLocation(credential);
+            				destinationAuthToken = destinationUser.getAccessToken();
+            				sourceResponse = copyService.postProductToDestination(destinationAuthToken, sourceProduct);
+            			}
+	            	}
 
                     if (sourceResponse.getStatusCode().equals(HttpStatus.OK)) {
                         htmlMessage.append(getResponse(sourceProduct.getExternalProductId(), "Success", sourceResponse.getBody()));
@@ -75,7 +102,7 @@ public class CopyWorker implements Runnable {
 
                 }
             } catch (RestClientException e) {
-                e.printStackTrace();
+                _LOGGER.error(e);
                 ExternalAPIResponse extResponse = getProductClient().convertExceptionToResponseModel(e);
                 try {
                     extResponse = prepareResponse(extResponse.getMessage());
@@ -152,7 +179,15 @@ public class CopyWorker implements Runnable {
         this.companyId = companyId;
     }
 
-    public synchronized String getSourceAuthToken() {
+	public Credential getCredential() {
+		return credential;
+	}
+
+	public void setCredential(Credential credential) {
+		this.credential = credential;
+	}
+
+	public synchronized String getSourceAuthToken() {
         return sourceAuthToken;
     }
 
@@ -184,58 +219,48 @@ public class CopyWorker implements Runnable {
         this.email = email;
     }
 
-    /**
-     * @return the copyService
-     */
     public synchronized CopyServiceImpl getCopyService() {
         return copyService;
     }
 
-    /**
-     * @param copyService the copyService to set
-     */
     public synchronized void setCopyService(CopyServiceImpl copyService) {
         this.copyService = copyService;
     }
 
-    /**
-     * @return the migrationService
-     */
     public synchronized MigrateProductServiceImpl getMigrationService() {
         return migrationService;
     }
 
-    /**
-     * @param migrationService the migrationService to set
-     */
     public synchronized void setMigrationService(MigrateProductServiceImpl migrationService) {
         this.migrationService = migrationService;
     }
 
     /**
-     * @return the productClient
-     */
-    public synchronized ProductClient getProductClient() {
+	 * @return the loginService
+	 */
+	public LoginCopyServiceImpl getLoginService() {
+		return loginService;
+	}
+
+	/**
+	 * @param loginService the loginService to set
+	 */
+	public void setLoginService(LoginCopyServiceImpl loginService) {
+		this.loginService = loginService;
+	}
+
+	public synchronized ProductClient getProductClient() {
         return productClient;
     }
 
-    /**
-     * @param productClient the productClient to set
-     */
     public synchronized void setProductClient(ProductClient productClient) {
         this.productClient = productClient;
     }
 
-    /**
-     * @return the inProgress
-     */
     public synchronized Map<String, String> getInProgress() {
         return inProgress;
     }
 
-    /**
-     * @param inProgress the inProgress to set
-     */
     public synchronized void setInProgress(Map<String, String> inProgress) {
         this.inProgress = inProgress;
     }

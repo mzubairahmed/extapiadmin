@@ -61,7 +61,7 @@ public class CopyServiceImpl {
             _LOGGER.debug("Cannot Proceed as sorce and destinition both are same");
             result = false;
         } else if(!destinitionURI.getHost().equalsIgnoreCase(SAND_HOST)) {
-            result = false;
+//            result = false;
         }
         
         return result;
@@ -144,7 +144,7 @@ public class CopyServiceImpl {
         
     }
     
-    public Product getSourceProduct(String authToken, String xid) {
+    public Product getSourceProduct(String authToken, String xid) throws RestClientException {
 
         Product product = null;
         HttpEntity<String> requestEntity = new HttpEntity<String>(getHeaders(authToken));

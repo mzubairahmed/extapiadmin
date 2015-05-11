@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.asi.admin.service.impl.CopyServiceImpl;
+import com.asi.admin.service.impl.LoginCopyServiceImpl;
 import com.asi.admin.service.impl.MigrateProductServiceImpl;
+import com.asi.admin.service.model.login.Credential;
 import com.asi.service.product.client.ProductClient;
 
 @Controller
@@ -29,6 +32,9 @@ public class CopyController {
 
     @Autowired
     MigrateProductServiceImpl   migrationService;
+    
+    @Autowired
+    LoginCopyServiceImpl loginService;
     
     @Autowired
     CopyServiceImpl copyService;
@@ -60,7 +66,7 @@ public class CopyController {
     @RequestMapping(value = "copy")
     public ModelAndView copyProducts(@ModelAttribute("companyId") Long companyId, @ModelAttribute("sourceAuthToken") String sourceAuthToken,
             @ModelAttribute("destinationAuthToken") String destinationAuthToken, @ModelAttribute("asiNumber") String asiNumber, @ModelAttribute("email") String email,
-            HttpServletResponse response) throws IOException {
+            HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         CopyWorker copyWorker = new CopyWorker();
         copyWorker.setAsiNumber(asiNumber);
@@ -69,8 +75,12 @@ public class CopyController {
         copyWorker.setSourceAuthToken(sourceAuthToken);
         copyWorker.setEmail(email);
         
+        Credential credential = (Credential) request.getSession().getAttribute(LoginController.CREDENTIAL_SESSION);
+        copyWorker.setCredential(credential);
+        
         copyWorker.setCopyService(copyService);
         copyWorker.setMigrationService(migrationService);
+        copyWorker.setLoginService(loginService);
         copyWorker.setProductClient(productClient);
         copyWorker.setInProgress(inProgress);
 
