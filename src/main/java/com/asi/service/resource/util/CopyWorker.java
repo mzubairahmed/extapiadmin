@@ -57,18 +57,20 @@ public class CopyWorker implements Runnable {
         _LOGGER.debug("Starting copying process...");
         _LOGGER.debug(products.size() + " will be imported to the destination");
         
-//        if(getInProgress().containsKey(asiNumber)) {
-//            copyService.sendInProgressEmail(email, asiNumber);
-//            return;
-//        } else {
-//            getInProgress().put(asiNumber, companyId.toString());
-//            copyService.sendStartProcessEMail(email, asiNumber);
-//        }
-        // This source auth token is changed to other auth token to test the expiration auth token case.
-        // LINE TO BE DELETED BEFORE COMMITTING CODE - START ----
-        sourceAuthToken = "basdf023n234bk2j3n4jk23k4n23b4kj23b4jkjnkjnjkasdfasd";
-        destinationAuthToken = "asdf23r23sfasdfawfasdfasfqwr232asdfsaasdfasdfasdf244ddaze";
-        // LINE TO BE DELETED BEFORE COMMITTING CODE - START ----
+        if(getInProgress().containsKey(asiNumber)) {
+            copyService.sendInProgressEmail(email, asiNumber);
+            return;
+        } else {
+            getInProgress().put(asiNumber, companyId.toString());
+            copyService.sendStartProcessEMail(email, asiNumber);
+        }
+
+//        // This source auth token is changed to other auth token to test the expiration auth token case.
+//        // LINE TO BE DELETED BEFORE COMMITTING CODE - START ----
+//        sourceAuthToken = "basdf023n234bk2j3n4jk23k4n23b4kj23b4jkjnkjnjkasdfasd";
+//        destinationAuthToken = "asdf23r23sfasdfawfasdfasfqwr232asdfsaasdfasdfasdf244ddaze";
+//        // LINE TO BE DELETED BEFORE COMMITTING CODE - START ----
+
         Product sourceProduct = null;
         ResponseEntity<ExternalAPIResponse> sourceResponse = null;
         for (ProductSearch product : products) {
