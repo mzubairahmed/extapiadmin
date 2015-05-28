@@ -83,6 +83,8 @@ public class CopyWorker implements Runnable {
 	    				AccessData sourceUser = loginService.loginUserSourceLocation(credential);
 	    				sourceAuthToken = sourceUser.getAccessToken();
 	    				sourceProduct = copyService.getSourceProduct(sourceAuthToken, product.getXID());
+	    			} else {
+	    			    throw httpe;
 	    			}
             	}
                 if (sourceProduct != null && !StringUtils.isEmpty(sourceProduct.getName())) {
@@ -93,6 +95,8 @@ public class CopyWorker implements Runnable {
             				AccessData destinationUser = loginService.loginUserDestinationLocation(credential);
             				destinationAuthToken = destinationUser.getAccessToken();
             				sourceResponse = copyService.postProductToDestination(destinationAuthToken, sourceProduct);
+            			} else {
+            			    throw httpe;
             			}
 	            	}
 
