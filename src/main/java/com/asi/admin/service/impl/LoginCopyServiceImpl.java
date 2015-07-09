@@ -6,6 +6,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.asi.admin.service.model.login.Credential;
 import com.asi.service.login.client.vo.AccessData;
+import com.asi.service.login.sso.vo.SSOBean;
 
 public class LoginCopyServiceImpl {
     
@@ -13,6 +14,7 @@ public class LoginCopyServiceImpl {
     private RestTemplate restTemplate;
     private String sourceLoginEndpoint;
     private String destinationLoginEndpoint;
+    private String ssoEndpoint;
     
     public AccessData loginUser(Credential credentials, String loginEndpoint) throws RestClientException {
         
@@ -29,6 +31,12 @@ public class LoginCopyServiceImpl {
     public AccessData loginUserDestinationLocation(Credential credentials) {
         
         return loginUser(credentials, destinationLoginEndpoint);
+    }
+    
+    public SSOBean getSSOBeanFromAuthToken(String authToken) {
+        String ssoURL = ssoEndpoint + authToken;
+        System.out.println(ssoURL);
+        return restTemplate.getForObject(ssoURL, SSOBean.class);
     }
 
 
@@ -77,6 +85,22 @@ public class LoginCopyServiceImpl {
      */
     public void setDestinationLoginEndpoint(String destinationLoginEndpoint) {
         this.destinationLoginEndpoint = destinationLoginEndpoint;
+    }
+
+
+    /**
+     * @return the ssoEndpoint
+     */
+    public String getSsoEndpoint() {
+        return ssoEndpoint;
+    }
+
+
+    /**
+     * @param ssoEndpoint the ssoEndpoint to set
+     */
+    public void setSsoEndpoint(String ssoEndpoint) {
+        this.ssoEndpoint = ssoEndpoint;
     }
 
 }

@@ -41,6 +41,7 @@
 			<property name="restTemplate" ref="restTemplate" />
 			<property name="sourceLoginEndpoint" value="${ws.api.radar.login.source}" />
 			<property name="destinationLoginEndpoint" value="${ws.api.radar.login.destination}" />
+			<property name="ssoEndpoint" value="${ws.api.oauth.sso}" />
 		</bean>
 		
 		<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="classpath:ehcache.xml"/> 
@@ -90,7 +91,7 @@
 	                         </property>
 	                  </bean> 
 	                 <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/> 
-	                  <bean class="org.springframework.http.converter.StringHttpMessageConverter ">
+	                  <bean class="org.springframework.http.converter.StringHttpMessageConverter">
 	                  	<constructor-arg value="#{T(java.nio.charset.Charset).forName('UTF-8')}"/>
 	                  </bean> 
 	            </list>
@@ -115,6 +116,24 @@
                 <prop key="mail.smtp.auth">true</prop>
                 <prop key="mail.smtp.ssl.enable">${asi.central.smtp.enablessl}</prop>
                 <prop key="mail.debug">true</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	    <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+	    <property name="url" value="jdbc:sqlserver://${db.sandbox.host}:${db.sandbox.port};DatabaseName=${db.sandbox.database}" />
+	    <property name="username" value="${db.sandbox.username}"/>
+	    <property name="password" value="${db.sandbox.password}"/>
+	</bean>
+	
+	<bean id="hibernate4AnnotatedSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.current_session_context_class">thread</prop>
+                <prop key="hibernate.show_sql">false</prop>
             </props>
         </property>
     </bean>

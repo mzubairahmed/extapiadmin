@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestClientException;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.asi.admin.service.impl.LoginCopyServiceImpl;
 import com.asi.admin.service.model.login.Credential;
 import com.asi.service.login.client.vo.AccessData;
+import com.asi.service.login.sso.vo.SSOBean;
 
 @Controller
 @RequestMapping("")
@@ -44,6 +46,7 @@ public class LoginController {
         
         AccessData sourceUser = null;
         AccessData destinationUser = null;
+        SSOBean sso = null;
         
         try {
             sourceUser = loginService.loginUserSourceLocation(credentials);
@@ -51,9 +54,16 @@ public class LoginController {
             destinationUser = loginService.loginUserDestinationLocation(credentials);
             _LOGGER.info("User logged in successfully on sandbox");
             
+            _LOGGER.info("Calling SSO Service to acquire destination user information...");
+            sso = loginService.getSSOBeanFromAuthToken(destinationUser.getAccessToken());
+            if(sso != null) {
+                sso.setIpAddress(getRemoteAddress(request));
+            }
+            
             mv.addObject("SupplierNumber", credentials.getAsi());
             mv.addObject("STAGE_USER", sourceUser);
             mv.addObject("SANDBOX_USER", destinationUser);
+            mv.addObject("SSOBean", sso);
             mv.addObject("Email", email);
             
             // in case the login is successfull - set the credentials in session
@@ -68,6 +78,43 @@ public class LoginController {
         }
 
         return mv;
+    }
+    
+    public String getRemoteAddress(HttpServletRequest request) {
+        
+        _LOGGER.info("remote address..");
+
+        String[] HEADERS_TO_TRY = { 
+            "X-Forwarded-For",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED",
+            "HTTP_VIA",
+            "REMOTE_ADDR" };
+        
+        String clientIP = null;
+        
+        request.getHeaderNames();
+        
+        for (String header : HEADERS_TO_TRY) {
+            String ip = request.getHeader(header);
+            _LOGGER.debug(header + " = " + ip);
+            if (!StringUtils.isEmpty(ip) && !"unknown".equalsIgnoreCase(ip)) {
+                clientIP = ip;
+                break;
+            }
+        }
+        
+        if(clientIP == null) {
+            clientIP = request.getRemoteAddr();
+        }
+        
+        return clientIP;
     }
 
 }

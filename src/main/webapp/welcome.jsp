@@ -152,7 +152,7 @@
 <body>
 	<div class="container">
 
-		<h1>Welcome to the Copy Utility!</h1>
+		<h1>${SSOBean.firstName} ${SSOBean.lastName}, Welcome to the Copy Utility!</h1>
 		
 		<div id="errorMessage" class="alert-box error" style="display: none;"><span>STOP!</span> Cannot Proceed - The destination has set as production</div>
 
@@ -162,17 +162,23 @@
 		</h4>
 		<h5>Copy will be done from Production to Sandbox</h5>
 		<h5>Please press the copy button to begin the copying process</h5>
-
+		
+		<form name="copyForm" id="copyForm" action="utility/copy" method="POST">
+		
+		<input type="checkbox" name="deleteAll" id="deleteAll" value="Yes"> Delete all products from Sandbox before copy?
+		
 		<button type="button" name="copyButton" id="copyButton"
 			value="Copy Products" onclick="copyProducts();" style="display: none;" >Copy Products</button>
 			
-		<form name="copyForm" id="copyForm" action="utility/copy" method="POST">
+		
 			<input type="hidden" name="asiNumber" id="asiNumber" value="${SupplierNumber}">
 			<input type="hidden" name="companyId" id="companyId" value="${STAGE_USER.companyId}">
 			<input type="hidden" name="authToken" id="authToken" value="${STAGE_USER.accessToken}">
 			<input type="hidden" name="sourceAuthToken" id="sourceAuthToken" value="${STAGE_USER.accessToken}">
 			<input type="hidden" name="destinationAuthToken" id="destinationAuthToken" value="${SANDBOX_USER.accessToken}">
 			<input type="hidden" name="email" id="email" value="${email}">
+			<input type="hidden" name="ssoId" id="ssoId" value ="${SSOBean.id}">
+			<input type="hidden" name="ssoIP" id="ssoIP" value="${SSOBean.ipAddress}">
 			<button type="submit" id="btnCopy" name="btnCopy" onclick="return submitForm();" style="display: none;">Copy</button>
 		</form>
 		

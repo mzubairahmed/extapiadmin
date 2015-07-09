@@ -34,6 +34,9 @@ public class CopyWorker implements Runnable {
     private String destinationAuthToken;
     private String asiNumber;
     private String email;
+    private String ssoId;
+    private String ipAddress;
+    private boolean deleteExistingData;
     private Map<String, String> inProgress;
     
     private CopyServiceImpl copyService;
@@ -63,6 +66,12 @@ public class CopyWorker implements Runnable {
         } else {
             getInProgress().put(asiNumber, companyId.toString());
             copyService.sendStartProcessEMail(email, asiNumber);
+        }
+        
+        if(deleteExistingData) {
+            _LOGGER.info("Deleting all products based on user choice...");
+            productClient.deleteProductsByCompany(asiNumber, ssoId, ipAddress);
+            
         }
 
 //        // This source auth token is changed to other auth token to test the expiration auth token case.
@@ -269,6 +278,42 @@ public class CopyWorker implements Runnable {
 
     public synchronized void setInProgress(Map<String, String> inProgress) {
         this.inProgress = inProgress;
+    }
+
+    public boolean isDeleteExistingData() {
+        return deleteExistingData;
+    }
+
+    public void setDeleteExistingData(boolean deleteExistingData) {
+        this.deleteExistingData = deleteExistingData;
+    }
+
+    /**
+     * @return the ssoId
+     */
+    public String getSsoId() {
+        return ssoId;
+    }
+
+    /**
+     * @param ssoId the ssoId to set
+     */
+    public void setSsoId(String ssoId) {
+        this.ssoId = ssoId;
+    }
+
+    /**
+     * @return the ipAddress
+     */
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    /**
+     * @param ipAddress the ipAddress to set
+     */
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
 }

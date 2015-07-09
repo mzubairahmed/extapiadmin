@@ -1,19 +1,38 @@
 package com.asi.service.product.client;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.asi.service.product.exception.ExternalApiAuthenticationException;
 import com.asi.service.product.exception.InvalidProductException;
-
 import com.asi.service.resource.response.ExternalAPIResponse;
 
 
 @Component
 public class ProductClient {
+    
+    private final String DELETE_PROC_CALL = "{call dbo.spLOAD_DeleteProductByASI(?,?,?,?,?)}";
+    
+    @Autowired
+    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
+    private Connection connection;
+    
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+     }
 
     public ExternalAPIResponse convertExceptionToResponseModel(Exception e) {
 
@@ -52,6 +71,36 @@ public class ProductClient {
         response.setAdditionalInfo(additionalInfo);
 
         return response;
+    }
+    
+    public boolean deleteProductsByCompany(String asiNumber, String ssoId, String ipAddress) {
+        boolean status = false;
+        StringBuilder deleteProc = new StringBuilder();
+        deleteProc.append("exec PROD_Master.dbo.[spLOAD_DeleteProductByASI] ")
+        .append("@ASINum = '").append(asiNumber).append("', ")
+        .append("@XID = '', ")
+        .append("@delimiter = ',', ")
+        .append("@IPAddress = '").append(ipAddress).append("', ")
+        .append("@Signon_ID = ").append(ssoId);
+        
+        try {
+            connection = jdbcTemplate.getDataSource().getConnection();
+            CallableStatement callableStatement = connection.prepareCall(deleteProc.toString());
+//            callableStatement.setString(1, asiNumber);
+//            callableStatement.setString(2, "");
+//            callableStatement.setString(3, ",");
+//            callableStatement.setString(4, ipAddress);
+//            callableStatement.setInt(5, Integer.parseInt(ssoId));
+            
+            callableStatement.execute();
+            
+            System.out.println("Deleted products for company: asi/"+asiNumber);
+            status = true;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return status;
     }
     
 }

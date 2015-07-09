@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,8 +66,12 @@ public class CopyController {
     
     @RequestMapping(value = "copy")
     public ModelAndView copyProducts(@ModelAttribute("companyId") Long companyId, @ModelAttribute("sourceAuthToken") String sourceAuthToken,
-            @ModelAttribute("destinationAuthToken") String destinationAuthToken, @ModelAttribute("asiNumber") String asiNumber, @ModelAttribute("email") String email,
+            @ModelAttribute("destinationAuthToken") String destinationAuthToken, @ModelAttribute("asiNumber") String asiNumber,
+            @ModelAttribute("email") String email, @ModelAttribute("deleteAll") String callDeleteProc,
+            @ModelAttribute("ssoId") String ssoId, @ModelAttribute("ssoIP") String ipAddress,
             HttpServletRequest request, HttpServletResponse response) throws IOException {
+        
+        boolean deleteExistingData = !StringUtils.isEmpty(callDeleteProc) && callDeleteProc.equalsIgnoreCase("Yes");
 
         CopyWorker copyWorker = new CopyWorker();
         copyWorker.setAsiNumber(asiNumber);
@@ -74,6 +79,8 @@ public class CopyController {
         copyWorker.setDestinationAuthToken(destinationAuthToken);
         copyWorker.setSourceAuthToken(sourceAuthToken);
         copyWorker.setEmail(email);
+        copyWorker.setSsoId(ssoId);
+        copyWorker.setIpAddress(ipAddress);
         
         Credential credential = (Credential) request.getSession().getAttribute(LoginController.CREDENTIAL_SESSION);
         copyWorker.setCredential(credential);
@@ -82,6 +89,7 @@ public class CopyController {
         copyWorker.setMigrationService(migrationService);
         copyWorker.setLoginService(loginService);
         copyWorker.setProductClient(productClient);
+        copyWorker.setDeleteExistingData(deleteExistingData);
         copyWorker.setInProgress(inProgress);
 
         Thread copyThread = new Thread(copyWorker);
