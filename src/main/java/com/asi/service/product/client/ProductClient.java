@@ -21,8 +21,6 @@ import com.asi.service.resource.response.ExternalAPIResponse;
 @Component
 public class ProductClient {
     
-    private final String DELETE_PROC_CALL = "{call dbo.spLOAD_DeleteProductByASI(?,?,?,?,?)}";
-    
     @Autowired
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
