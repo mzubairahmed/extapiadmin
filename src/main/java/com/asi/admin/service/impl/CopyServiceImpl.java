@@ -1,13 +1,17 @@
 package com.asi.admin.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -100,7 +104,6 @@ public class CopyServiceImpl {
         }
 
     }
-
     
 //    MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
 //    String htmlMsg = "<h3>Hello World!</h3>";
@@ -115,19 +118,37 @@ public class CopyServiceImpl {
         
         JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
         MimeMessage message = mailSenderImpl.createMimeMessage();
+        FileSystemResource file = null;
         try {
-            message.setContent(prepareReportMessage(asiNumber, htmlMessage), "text/html");
+//            message.setContent(prepareReportMessage(asiNumber, htmlMessage), "text/html");
             
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message, false, "UTF-8");
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
             messageHelper.setTo(to);
             messageHelper.setFrom(getFrom());
             messageHelper.setReplyTo(getReplyTo());
             messageHelper.setSubject("Product Updates - Copy Process Updates");
             
+            messageHelper.setText("", prepareReportMessage(asiNumber, htmlMessage));
+            
+            FileUtils.writeStringToFile(new File("Report.txt"), htmlMessage);
+
+            file = new FileSystemResource("Report.txt");
+            messageHelper.addAttachment(file.getFilename(), file);
+            
             mailSenderImpl.send(message);
             
         } catch (Exception e) {
+            e.printStackTrace();
             _LOGGER.error(e);
+        } finally {
+            
+            try {
+                if(file != null && file.exists()) {
+                    file.getFile().delete();
+                }
+            } catch (SecurityException e) {
+                _LOGGER.error("Unable to delete the file - do not have delete access.", e);
+            }
         }
         
     }
@@ -135,10 +156,8 @@ public class CopyServiceImpl {
     private String prepareReportMessage(String asiNumber, String htmlMessage) {
         
         StringBuilder message = new StringBuilder();
-        message.append("Dear User,").append("<br><br>").append("Your requested copy process for company: asi/").append(asiNumber).append(" has been finished.").append("<br>").append("Following is the product wise status.<br><br><br>");
-        
-        message.append("<table border='1px'>").append("<tr>").append("<th width='15%'>").append("XID").append("</th>").append("<th width='5%'>").append("Status").append("</th>").append("<th>").append("Message").append("</th>").append("<tr>");
-        message.append(htmlMessage);
+        message.append("Dear User,").append("<br><br>").append("Your requested copy process for company: asi/").append(asiNumber).append(" has been finished.").append("<br>")
+        .append("Please find the attached detailed report").append("<BR><BR>Thank you!");
         
         return message.toString();
         

@@ -110,9 +110,9 @@ public class CopyWorker implements Runnable {
 	            	}
 
                     if (sourceResponse.getStatusCode().equals(HttpStatus.OK)) {
-                        htmlMessage.append(getResponse(sourceProduct.getExternalProductId(), "Success", sourceResponse.getBody()));
+                        htmlMessage.append(getMessageText(sourceProduct.getExternalProductId(), "Success", sourceResponse.getBody()));
                     } else {
-                        htmlMessage.append(getResponse(sourceProduct.getExternalProductId(), "Failed", sourceResponse.getBody()));
+                        htmlMessage.append(getMessageText(sourceProduct.getExternalProductId(), "Failed", sourceResponse.getBody()));
                     }
 
                 }
@@ -121,7 +121,7 @@ public class CopyWorker implements Runnable {
                 ExternalAPIResponse extResponse = getProductClient().convertExceptionToResponseModel(e);
                 try {
                     extResponse = prepareResponse(extResponse.getMessage());
-                    htmlMessage.append(getResponse(product.getXID(), "Failed", extResponse));
+                    htmlMessage.append(getMessageText(product.getXID(), "Failed", extResponse));
                 } catch (Exception ioe) {
                     _LOGGER.error(ioe);
                 }
@@ -159,6 +159,15 @@ public class CopyWorker implements Runnable {
         
     }
     
+    private synchronized String getMessageText(String XID, String status, ExternalAPIResponse apiResponse) {
+        
+        StringBuilder response = new StringBuilder();
+        response.append("\n").append(XID).append("\t|\t").append(status).append("\t|\t").append(prepareTextAdditionalInfo(apiResponse));
+        
+        return response.toString();
+        
+    }
+
     private synchronized String getResponse(String XID, String status, ExternalAPIResponse apiResponse) {
         
         StringBuilder response = new StringBuilder();
@@ -170,7 +179,21 @@ public class CopyWorker implements Runnable {
         return response.toString();
         
     }
-    
+
+    private synchronized String prepareTextAdditionalInfo(ExternalAPIResponse response) {
+        StringBuilder message = new StringBuilder();
+        message.append(response.getMessage());
+        
+        if(response.getAdditionalInfo() != null && !response.getAdditionalInfo().isEmpty()) {
+            message.append(" ***Additional Information*** ");
+            for(String additionalInfo : response.getAdditionalInfo()) {
+                message.append(" | ").append(additionalInfo).append(" | ");
+            }
+        }
+        
+        return message.toString();
+    }
+
     private synchronized String prepareResponseMessage(ExternalAPIResponse response) {
         StringBuilder message = new StringBuilder();
         message.append(response.getMessage());
