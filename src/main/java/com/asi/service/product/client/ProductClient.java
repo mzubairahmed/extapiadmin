@@ -91,8 +91,6 @@ public class ProductClient {
 //            callableStatement.setInt(5, Integer.parseInt(ssoId));
             
             callableStatement.execute();
-            
-            System.out.println("Deleted products for company: asi/"+asiNumber);
             status = true;
             
         } catch (SQLException e) {

@@ -73,7 +73,7 @@
 	var authToken = '${STAGE_USER.accessToken}';
 	var data = {
 			'asiNumber'		 : '${SupplierNumber}',
-			'companyId'      : '${STAGE_USER.companyId}',
+			'companyId'      : '${SSOBean.companyId}',
 			'authToken'      : '${STAGE_USER.accessToken}',
 			'sourceAuthToken' : '${STAGE_USER.accessToken}',
 			'destinationAuthToken'   : '${SANDBOX_USER.accessToken}',
@@ -172,7 +172,7 @@
 			
 		
 			<input type="hidden" name="asiNumber" id="asiNumber" value="${SupplierNumber}">
-			<input type="hidden" name="companyId" id="companyId" value="${STAGE_USER.companyId}">
+			<input type="hidden" name="companyId" id="companyId" value="${SSOBean.companyId}">
 			<input type="hidden" name="authToken" id="authToken" value="${STAGE_USER.accessToken}">
 			<input type="hidden" name="sourceAuthToken" id="sourceAuthToken" value="${STAGE_USER.accessToken}">
 			<input type="hidden" name="destinationAuthToken" id="destinationAuthToken" value="${SANDBOX_USER.accessToken}">

@@ -18,6 +18,9 @@ import com.asi.admin.service.model.search.SearchCriteria;
 
 public class MigrateProductServiceImpl {
     
+    public static final String AUTH_TOKEN_KEY = "Authorization";
+    public static final String AUTHENTICATION_SCHEME = "Bearer ";
+    
     @Autowired
     private RestTemplate restTemplate;
     private String productSearchURL;
@@ -26,7 +29,7 @@ public class MigrateProductServiceImpl {
     public List<ProductSearch> getProductsListByCompanyID(Long companyID, Long count, String authToken) {
         
         HttpHeaders header = new HttpHeaders();
-        header.add("AuthToken", authToken);
+        header.add(AUTH_TOKEN_KEY, AUTHENTICATION_SCHEME + authToken);
         header.setContentType(MediaType.APPLICATION_JSON);
         
         SearchCriteria criteria = new SearchCriteria();
@@ -42,8 +45,10 @@ public class MigrateProductServiceImpl {
     }
     
     public Long getProductCount(Long companyId, String authToken) {
+
         HttpHeaders header = new HttpHeaders();
-        header.add("AuthToken", authToken);
+        
+        header.add(AUTH_TOKEN_KEY, AUTHENTICATION_SCHEME + authToken);
         header.setContentType(MediaType.APPLICATION_JSON);
         
         SearchCriteria criteria = new SearchCriteria();

@@ -35,7 +35,6 @@ public class LoginCopyServiceImpl {
     
     public SSOBean getSSOBeanFromAuthToken(String authToken) {
         String ssoURL = ssoEndpoint + authToken;
-        System.out.println(ssoURL);
         return restTemplate.getForObject(ssoURL, SSOBean.class);
     }
 

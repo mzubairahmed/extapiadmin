@@ -61,8 +61,8 @@ public class CopyWorker implements Runnable {
         _LOGGER.debug(products.size() + " will be imported to the destination");
         
         if(getInProgress().containsKey(asiNumber)) {
-            copyService.sendInProgressEmail(email, asiNumber);
-            return;
+//            copyService.sendInProgressEmail(email, asiNumber);
+//            return;
         } else {
             getInProgress().put(asiNumber, companyId.toString());
             copyService.sendStartProcessEMail(email, asiNumber);
@@ -87,11 +87,14 @@ public class CopyWorker implements Runnable {
             try {
             	try {
             		sourceProduct = copyService.getSourceProduct(sourceAuthToken, product.getXID());
+            		_LOGGER.info("Product successfully GET XID: " + sourceProduct.getExternalProductId());
             	} catch (HttpClientErrorException httpe) {
 	    			if(httpe.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+	    			    _LOGGER.error("[GET] AuthToken Expired during process - acquiring authtoken again to continue...");
 	    				AccessData sourceUser = loginService.loginUserSourceLocation(credential);
 	    				sourceAuthToken = sourceUser.getAccessToken();
 	    				sourceProduct = copyService.getSourceProduct(sourceAuthToken, product.getXID());
+	    				_LOGGER.info("Product successfully GET XID: " + sourceProduct.getExternalProductId());
 	    			} else {
 	    			    throw httpe;
 	    			}
@@ -99,11 +102,14 @@ public class CopyWorker implements Runnable {
                 if (sourceProduct != null && !StringUtils.isEmpty(sourceProduct.getName())) {
                 	try {
                 		sourceResponse = copyService.postProductToDestination(destinationAuthToken, sourceProduct);
+                		_LOGGER.info("Product : " + sourceProduct.getExternalProductId() + " posted to destination successfully.");
 	                } catch (HttpClientErrorException httpe) {
             			if(httpe.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+            			    _LOGGER.error("[POST] AuthToken Expired during process - acquiring authtoken again to continue...");
             				AccessData destinationUser = loginService.loginUserDestinationLocation(credential);
             				destinationAuthToken = destinationUser.getAccessToken();
             				sourceResponse = copyService.postProductToDestination(destinationAuthToken, sourceProduct);
+            				_LOGGER.info("Product : " + sourceProduct.getExternalProductId() + " posted to destination successfully.");
             			} else {
             			    throw httpe;
             			}

@@ -1,10 +1,8 @@
 package com.asi.admin.service.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.regex.Pattern;
 
 import javax.mail.internet.MimeMessage;
 
@@ -36,6 +34,9 @@ public class CopyServiceImpl {
     private static final String PROD_HOST = "productservice.asicentral.com";
     private static final String SAND_HOST = "sandbox-productservice.asicentral.com";
     
+    public static final String AUTH_TOKEN_KEY = "AuthToken";
+    public static final String AUTHENTICATION_SCHEME = "Bearer ";
+
     @Autowired
     MigrateProductServiceImpl   migrationService;
     RestTemplate                restTemplate;
@@ -166,7 +167,13 @@ public class CopyServiceImpl {
     public Product getSourceProduct(String authToken, String xid) throws RestClientException {
 
         Product product = null;
-        HttpEntity<String> requestEntity = new HttpEntity<String>(getHeaders(authToken));
+        
+        HttpHeaders header = new HttpHeaders();
+//        header.add(AUTH_TOKEN_KEY, AUTHENTICATION_SCHEME + authToken);
+        header.add("AuthToken", authToken);
+        header.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<String> requestEntity = new HttpEntity<String>(header);
         ResponseEntity<Product> productResponse = restTemplate.exchange(sourceEndpoint, HttpMethod.GET, requestEntity, Product.class, xid);
 
         if (productResponse.getStatusCode() == HttpStatus.OK && productResponse.getBody() != null) {
@@ -188,22 +195,6 @@ public class CopyServiceImpl {
         header.setContentType(MediaType.APPLICATION_JSON);
 
         return header;
-    }
-    
-    public static void main(String...args) {
-        
-        CopyServiceImpl copyServiceImpl = new CopyServiceImpl();
-        copyServiceImpl.setSourceEndpoint("https://productservice.asicentral.com/v1/product/{xid}");
-        copyServiceImpl.setDestinationEndpoint("https://sandbox-productservice.asicentral.com/v1/product/");
-        
-        String replace = copyServiceImpl.getSourceEndpoint().replaceAll("\\{xid\\}", "");
-        
-        try {
-            copyServiceImpl.validateEnvironments();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        
     }
 
     /**

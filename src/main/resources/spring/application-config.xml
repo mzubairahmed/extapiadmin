@@ -39,8 +39,8 @@
 			
 		<bean id="loginCopyService" class="com.asi.admin.service.impl.LoginCopyServiceImpl">
 			<property name="restTemplate" ref="restTemplate" />
-			<property name="sourceLoginEndpoint" value="${ws.api.radar.login.source}" />
-			<property name="destinationLoginEndpoint" value="${ws.api.radar.login.destination}" />
+			<property name="sourceLoginEndpoint" value="${ws.api.login.source}" />
+			<property name="destinationLoginEndpoint" value="${ws.api.login.destination}" />
 			<property name="ssoEndpoint" value="${ws.api.oauth.sso}" />
 		</bean>
 		

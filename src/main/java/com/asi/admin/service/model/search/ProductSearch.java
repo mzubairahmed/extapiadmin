@@ -8,22 +8,29 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
     "ID",
-    "Name",
     "CompanyId",
     "StatusCode",
     "WorkflowStatusCode",
     "WorkflowStatusStateCode",
     "Number",
+    "Name",
     "Description",
     "Summary",
     "PublishDate",
     "PrimaryImageUrl",
     "IsWIP",
     "UnpublishDate",
-    "CreateDate",
-    "UpdateDate",
     "Reason_CD",
-    "XID"
+    "XID",
+    "LastUpdatedBy",
+    "InReviewComment",
+    "CanBlkPrcAdj",
+    "CanBlkUpchAdj",
+    "CanBlkConf",
+    "CanBlkPblsh",
+    "CanBlkUnPblsh",
+    "CreateDate",
+    "UpdateDate"
 })
 public class ProductSearch {
 
@@ -61,6 +68,22 @@ public class ProductSearch {
     private String ReasonCD;
     @JsonProperty("XID")
     private String XID;
+    
+    @JsonProperty("LastUpdatedBy")
+    private String LastUpdatedBy;
+    @JsonProperty("InReviewComment")
+    private String InReviewComment;
+    @JsonProperty("CanBlkPrcAdj")
+    private String CanBlkPrcAdj;
+    @JsonProperty("CanBlkUpchAdj")
+    private String CanBlkUpchAdj;
+    @JsonProperty("CanBlkConf")
+    private String CanBlkConf;
+    @JsonProperty("CanBlkPblsh")
+    private String CanBlkPblsh;
+    @JsonProperty("CanBlkUnPblsh")
+    private String CanBlkUnPblsh;
+
 
     /**
      * 
@@ -302,24 +325,19 @@ public class ProductSearch {
         this.IsWIP = IsWIP;
     }
 
+
     /**
-     * 
-     * @return
-     *     The UnpublishDate
+     * @return the unpublishDate
      */
-    @JsonProperty("UnpublishDate")
     public String getUnpublishDate() {
         return UnpublishDate;
     }
 
     /**
-     * 
-     * @param UnpublishDate
-     *     The UnpublishDate
+     * @param unpublishDate the unpublishDate to set
      */
-    @JsonProperty("UnpublishDate")
-    public void setUnpublishDate(String UnpublishDate) {
-        this.UnpublishDate = UnpublishDate;
+    public void setUnpublishDate(String unpublishDate) {
+        UnpublishDate = unpublishDate;
     }
 
     /**
@@ -400,6 +418,104 @@ public class ProductSearch {
     @JsonProperty("XID")
     public void setXID(String XID) {
         this.XID = XID;
+    }
+
+    /**
+     * @return the lastUpdatedBy
+     */
+    public String getLastUpdatedBy() {
+        return LastUpdatedBy;
+    }
+
+    /**
+     * @param lastUpdatedBy the lastUpdatedBy to set
+     */
+    public void setLastUpdatedBy(String lastUpdatedBy) {
+        LastUpdatedBy = lastUpdatedBy;
+    }
+
+    /**
+     * @return the inReviewComment
+     */
+    public String getInReviewComment() {
+        return InReviewComment;
+    }
+
+    /**
+     * @param inReviewComment the inReviewComment to set
+     */
+    public void setInReviewComment(String inReviewComment) {
+        InReviewComment = inReviewComment;
+    }
+
+    /**
+     * @return the canBlkPrcAdj
+     */
+    public String getCanBlkPrcAdj() {
+        return CanBlkPrcAdj;
+    }
+
+    /**
+     * @param canBlkPrcAdj the canBlkPrcAdj to set
+     */
+    public void setCanBlkPrcAdj(String canBlkPrcAdj) {
+        CanBlkPrcAdj = canBlkPrcAdj;
+    }
+
+    /**
+     * @return the canBlkUpchAdj
+     */
+    public String getCanBlkUpchAdj() {
+        return CanBlkUpchAdj;
+    }
+
+    /**
+     * @param canBlkUpchAdj the canBlkUpchAdj to set
+     */
+    public void setCanBlkUpchAdj(String canBlkUpchAdj) {
+        CanBlkUpchAdj = canBlkUpchAdj;
+    }
+
+    /**
+     * @return the canBlkConf
+     */
+    public String getCanBlkConf() {
+        return CanBlkConf;
+    }
+
+    /**
+     * @param canBlkConf the canBlkConf to set
+     */
+    public void setCanBlkConf(String canBlkConf) {
+        CanBlkConf = canBlkConf;
+    }
+
+    /**
+     * @return the canBlkPblsh
+     */
+    public String getCanBlkPblsh() {
+        return CanBlkPblsh;
+    }
+
+    /**
+     * @param canBlkPblsh the canBlkPblsh to set
+     */
+    public void setCanBlkPblsh(String canBlkPblsh) {
+        CanBlkPblsh = canBlkPblsh;
+    }
+
+    /**
+     * @return the canBlkUnPblsh
+     */
+    public String getCanBlkUnPblsh() {
+        return CanBlkUnPblsh;
+    }
+
+    /**
+     * @param canBlkUnPblsh the canBlkUnPblsh to set
+     */
+    public void setCanBlkUnPblsh(String canBlkUnPblsh) {
+        CanBlkUnPblsh = canBlkUnPblsh;
     }
 
 
